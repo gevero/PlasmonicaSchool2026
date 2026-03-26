@@ -1,0 +1,53 @@
+<svg width="400" height="350" viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Edges -->
+  <g id="edges" stroke="#ffffff" stroke-width="1.5" opacity="0.3">
+    <!-- From Bias Node (+1) -->
+    <line x1="80" y1="40" x2="320" y2="110" />
+    <line x1="80" y1="40" x2="320" y2="175" />
+    <line x1="80" y1="40" x2="320" y2="240" />
+    
+    <!-- From Input Nodes -->
+    <!-- Node 1 -->
+    <line x1="80" y1="100" x2="320" y2="110" />
+    <line x1="80" y1="100" x2="320" y2="175" />
+    <line x1="80" y1="100" x2="320" y2="240" />
+    <!-- Node 2 -->
+    <line x1="80" y1="150" x2="320" y2="110" />
+    <line x1="80" y1="150" x2="320" y2="175" />
+    <line x1="80" y1="150" x2="320" y2="240" />
+    <!-- Node 3 -->
+    <line x1="80" y1="200" x2="320" y2="110" />
+    <line x1="80" y1="200" x2="320" y2="175" />
+    <line x1="80" y1="200" x2="320" y2="240" />
+    <!-- Node 4 -->
+    <line x1="80" y1="250" x2="320" y2="110" />
+    <line x1="80" y1="250" x2="320" y2="175" />
+    <line x1="80" y1="250" x2="320" y2="240" />
+    <!-- Node 5 -->
+    <line x1="80" y1="300" x2="320" y2="110" />
+    <line x1="80" y1="300" x2="320" y2="175" />
+    <line x1="80" y1="300" x2="320" y2="240" />
+  </g>
+
+  <!-- Nodes -->
+  <g id="nodes">
+    <!-- Bias Node -->
+    <circle cx="80" cy="40" r="18" fill="#f1c40f" stroke="#ffffff" stroke-width="2" />
+    <text x="80" y="45" text-anchor="middle" font-size="12" fill="#000" font-weight="bold">+1</text>
+    <text x="80" y="20" text-anchor="middle" font-size="14" fill="#f1c40f">Bias (b)</text>
+
+    <!-- Input layer (x) -->
+    <circle cx="80" cy="100" r="18" fill="#3498db" stroke="#ffffff" stroke-width="2" />
+    <circle cx="80" cy="150" r="18" fill="#3498db" stroke="#ffffff" stroke-width="2" />
+    <circle cx="80" cy="200" r="18" fill="#3498db" stroke="#ffffff" stroke-width="2" />
+    <circle cx="80" cy="250" r="18" fill="#3498db" stroke="#ffffff" stroke-width="2" />
+    <circle cx="80" cy="300" r="18" fill="#3498db" stroke="#ffffff" stroke-width="2" />
+    <text x="80" y="335" text-anchor="middle" font-size="16" fill="#3498db" font-weight="bold">Input (x)</text>
+    
+    <!-- Output layer (y) -->
+    <circle cx="320" cy="110" r="18" fill="#e74c3c" stroke="#ffffff" stroke-width="2" />
+    <circle cx="320" cy="175" r="18" fill="#e74c3c" stroke="#ffffff" stroke-width="2" />
+    <circle cx="320" cy="240" r="18" fill="#e74c3c" stroke="#ffffff" stroke-width="2" />
+    <text x="320" y="285" text-anchor="middle" font-size="16" fill="#e74c3c" font-weight="bold">Output (y)</text>
+  </g>
+</svg>

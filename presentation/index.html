@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<title>PyTorch for Inverse Design of Photonic Structures</title>
+	<link href="dist/reset.css" rel="stylesheet" />
+	<link href="dist/reveal.css" rel="stylesheet" />
+	<link href="dist/theme/black.css" rel="stylesheet" />
+	<!-- Theme used for syntax highlighted code -->
+	<link href="dist/plugin/highlight/monokai.css" rel="stylesheet" />
+	<style>
+		.reveal p,
+		.reveal ul,
+		.reveal ol {
+			font-size: 0.8em;
+		}
+
+		.reveal ul ul,
+		.reveal ul ol,
+		.reveal ol ul,
+		.reveal ol ol {
+			font-size: 1em;
+		}
+
+		.equation-box {
+			font-size: 0.8em;
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			border-radius: 15px;
+			padding: 10px;
+			background: rgba(255, 255, 255, 0.05);
+			margin: 20px auto;
+			width: fit-content;
+		}
+
+		/* Global footer styling for slides */
+		/* .reveal .slides section:not(.stack) {
+			height: 100% !important;
+			top: 0 !important;
+			display: flex !important;
+			flex-direction: column !important;
+			justify-content: center !important;
+			align-items: center !important;
+			box-sizing: border-box !important;
+			padding-bottom: 80px !important;
+		}
+
+		.reveal .slides section:not(.stack)::after {
+			content: "";
+			position: absolute;
+			bottom: 20px;
+			left: 20px;
+			right: 20px;
+			height: 60px;
+			background-image: url("assets/SVILUPPO_ORIZZ_LUNGO_BIANCO SU NERO.png"),
+				url("assets/Plasmonicaschool_2026 (1).png");
+			background-position: left center, right center;
+			background-repeat: no-repeat;
+			background-size: auto 40px, auto 55px;
+			z-index: 20;
+			pointer-events: none;
+		} */
+
+		/* Hide footer on the title slide (first section) */
+		/* .reveal .slides>section:first-child::after {
+			display: none !important;
+		} */
+	</style>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<!-- Title -->
+			<section>
+				<h3>Inverse Design of Photonic Structures Using Differentiable Physics</h3>
+				<!-- <h3></h3> -->
+				<p>
+					<small>A deep dive into modern gradient-based optimization</small>
+				</p>
+				<img alt="MLP Fit Result" src="assets/mlp_sine_fit.png"
+					style="height: 300px; background: transparent; border: none; box-shadow: none; margin: -50px auto 0px auto;" />
+				<p>
+					<small>Giovanni Pellegrini<br />
+						<a>giovanni.pellegrini@unipv.it</a></small>
+				</p>
+			</section>
+			<section>
+				<h2>Me in a nutshell!</h2>
+				<div style="text-align: left; display: inline-block;">
+					<p style="margin-top: 0; margin-bottom: 0;"><strong>Giovanni Pellegrini</strong></p>
+					<ul style="margin-bottom: 0.8em;">
+						<li>Associate Professor - Physics Department - University of Pavia</li>
+					</ul>
+
+					<p style="margin-top: 0; margin-bottom: 0;"><strong>Research interests</strong></p>
+					<ul style="margin-bottom: 0.8em;">
+						<li>Computational Nanophotonics</li>
+						<li>Machine Learning and Optimization for Nanophotonics</li>
+						<li>Machine Learning for Image Reconstruction</li>
+						<li>Machine Learning for Signal Processing</li>
+					</ul>
+
+					<p style="margin-top: 0; margin-bottom: 0;"><strong>Also interested in</strong></p>
+					<ul>
+						<li>Industrial Automation and Robotics</li>
+						<li>Deep Learning for Machine Vision</li>
+					</ul>
+				</div>
+			</section>
+			<!-- Prerequisites -->
+			<section>
+				<h2>(SOFT) PREREQUISITES</h2>
+				<ul style="list-style-type: none; margin: 0; padding: 0;">
+					<li class="r-hstack justify-between" style="gap: 2rem; margin-bottom: 1.5rem;">
+						<span>(A little bit of) <strong>Programming</strong></span>
+						<img alt="Matrix rain" src="assets/2024/matrix_digital_rain.gif" style="height: 120px;" />
+					</li>
+					<li class="r-hstack justify-between" style="gap: 2rem; margin-bottom: 1.5rem;">
+						<span>(Heard about) <strong> Neural Nets</strong></span>
+						<img alt="Neural Networks for Babies" src="assets/2024/neural_networks_for_babies_cover.jpg"
+							style="height: 150px;" />
+					</li>
+					<li class="r-hstack justify-between" style="gap: 2rem;">
+						<span>(Basics of) <strong>Optics and photonics</strong></span>
+						<img alt="Monocle emoji" src="assets/2024/monocle_emoji.svg" style="height: 120px;" />
+					</li>
+				</ul>
+
+			</section>
+			<!-- Why Python -->
+			<section>
+				<section>
+					<h2>Why Python?</h2>
+					<p>The Good, The Bad, and The Environments</p>
+
+				</section>
+				<section>
+					<div class="r-stack">
+						<div class="fragment fade-out" data-fragment-index="1">
+							<h3>The Good: Syntax &amp; Ecosystem</h3>
+							<img alt="xkcd 353: Python" src="assets/2024/xkcd_python_antigravity.png"
+								style="max-height: 450px; background: white; padding: 10px;" />
+						</div>
+						<div class="fragment fade-in" data-fragment-index="1">
+							<h3>The Bad: Environments</h3>
+							<img alt="xkcd 1987: Python Environment" src="assets/2024/xkcd_python_environment.png"
+								style="max-height: 450px; background: white; padding: 10px;" />
+						</div>
+					</div>
+
+				</section>
+			</section>
+			<!-- Advent of NN Frameworks -->
+			<section>
+				<section>
+					<h2>The Advent of Neural Network Frameworks</h2>
+					<p>Machine Learning has driven the development of highly optimized tensor libraries over the last
+						decade.</p>
+
+				</section>
+				<section>
+					<h3>Key Players</h3>
+					<div class="r-stack">
+						<ul class="fragment fade-out" data-fragment-index="4"
+							style="list-style: none; margin: 0; padding: 0;">
+							<li class="fragment" data-fragment-index="1" style="margin-bottom: 20px;">
+								<img alt="TensorFlow logo" src="assets/2024/tensorflow_logo.svg"
+									style="height: 1.2em; vertical-align: middle; margin-right: 10px;" />
+								<strong>TensorFlow</strong>: The early pioneer of static computation graphs. Great for
+								production, historically harder to debug.
+							</li>
+							<li class="fragment" data-fragment-index="2" style="margin-bottom: 20px;">
+								<img alt="JAX logo"
+									src="https://raw.githubusercontent.com/google/jax/main/docs/_static/jax_logo_250px.png"
+									style="height: 1.2em; vertical-align: middle; margin-right: 10px;" />
+								<strong>JAX</strong>: High-performance, functional array computing (Autograd + XLA).
+								Excellent for pure functional math.
+							</li>
+							<li class="fragment" data-fragment-index="3" style="margin-bottom: 20px;">
+								<img alt="PyTorch logo" src="assets/2024/pytorch_logo.svg"
+									style="height: 1.2em; vertical-align: middle; margin-right: 10px;" />
+								<strong>PyTorch</strong>: Pythonic, dynamic computation graphs. The undisputed leader in
+								research.
+							</li>
+						</ul>
+						<div class="fragment fade-in" data-fragment-index="4">
+							<p>They all share one superpower:</p>
+							<h2>Automatic Differentiation</h2>
+						</div>
+					</div>
+
+				</section>
+			</section>
+			<!-- Focus on PyTorch -->
+			<section>
+				<section>
+					<img alt="PyTorch logo" src="assets/2024/pytorch_logo.svg"
+						style="height: 120px; margin-bottom: 20px;" />
+					<h2>Focus on PyTorch</h2>
+					<p>Why choose PyTorch for scientific computing?</p>
+
+				</section>
+				<section>
+					<h3>The PyTorch Advantage</h3>
+					<ul>
+						<li><strong>Dynamic Computation Graphs</strong>: "Define-by-run". The graph is built on the fly
+							as operations occur.</li>
+						<li><strong>Pythonic Nature</strong>: Feels exactly like writing standard NumPy code.</li>
+						<li><strong>Seamless GPU Acceleration</strong>: Move tensors from CPU to GPU with a simple
+							<code>.to('cuda')</code>.
+						</li>
+						<li><strong>Massive Ecosystem</strong>: HuggingFace, PyTorch Lightning, and growing SciML
+							libraries.</li>
+					</ul>
+
+				</section>
+			</section>
+			<!-- Showing the Ropes -->
+			<section>
+				<section>
+					<h2>Showing the Ropes of PyTorch</h2>
+					<p>Tensors and Operations</p>
+
+				</section>
+				<section>
+					<h3>Devices &amp; Hardware Acceleration</h3>
+					<p>PyTorch can seamlessly run computations on different hardware backends.</p>
+					<pre><code class="language-python" data-line-numbers="1-2|4-5|6-7|8-9|11" data-trim="">
+							import torch
+
+							# Standard check for hardware acceleration
+							if torch.cuda.is_available():
+							    device = torch.device('cuda') # NVIDIA GPU
+							elif torch.backends.mps.is_available():
+							    device = torch.device('mps')  # Apple Silicon
+							else:
+							    device = torch.device('cpu')  # Fallback
+
+							print(f"Using device: {device}")
+						</code></pre>
+					<p class="fragment"><small><em>This allows code to run efficiently on Colab GPUs, Macbooks, or
+								standard laptops without changes.</em></small></p>
+
+				</section>
+				<section>
+					<h3>Tensors</h3>
+					<p>Tensors are multi-dimensional arrays, similar to NumPy's <code>ndarray</code>.</p>
+					<pre><code class="language-python" data-line-numbers="1-2|4-5|7-8" data-trim="">
+							import torch
+
+							# Create a tensor on the selected device
+							x = torch.tensor([1.0, 2.0, 3.0], device=device)
+
+							# Element-wise operations
+							y = torch.sin(x) + torch.exp(x)
+						</code></pre>
+
+				</section>
+				<section>
+					<h3>The Computational Graph</h3>
+					<div>
+						<p>When you set <code>requires_grad=True</code>, PyTorch tracks every mathematical operation
+							applied to the tensor, building a Directed Acyclic Graph (DAG).</p>
+					</div>
+					<!-- Elegant Pastel DAG SVG -->
+					<div style="margin-top: 30px;">
+						<svg height="300" viewbox="0 0 700 300" width="700">
+							<defs>
+								<!-- Cleaner, more elegant arrowhead -->
+								<marker id="arrow" markerheight="10" markerunits="strokeWidth" markerwidth="10"
+									orient="auto" refx="9" refy="5">
+									<path d="M0,0 L0,10 L10,5 z" fill="#cccccc"></path>
+								</marker>
+								<!-- Drop shadow for nodes -->
+								<filter height="140%" id="shadow" width="140%" x="-20%" y="-20%">
+									<fedropshadow dx="2" dy="2" flood-opacity="0.3" stddeviation="3"></fedropshadow>
+								</filter>
+							</defs>
+							<!-- Connections with gaps for a cleaner look -->
+							<path d="M140,70 L210,105" fill="none" marker-end="url(#arrow)" stroke="#cccccc"
+								stroke-width="2"></path>
+							<path d="M140,170 L210,135" fill="none" marker-end="url(#arrow)" stroke="#cccccc"
+								stroke-width="2"></path>
+							<path d="M290,120 L370,120" fill="none" marker-end="url(#arrow)" stroke="#cccccc"
+								stroke-width="2"></path>
+							<path d="M410,175 L410,150" fill="none" marker-end="url(#arrow)" stroke="#cccccc"
+								stroke-width="2"></path>
+							<path d="M450,120 L530,120" fill="none" marker-end="url(#arrow)" stroke="#cccccc"
+								stroke-width="2"></path>
+							<!-- Input Tensors (Pastel Blue) -->
+							<g filter="url(#shadow)">
+								<circle cx="100" cy="70" fill="#AEC6CF" r="35"></circle>
+								<text fill="#333" font-size="24" font-weight="bold" text-anchor="middle" x="100"
+									y="80">x</text>
+								<circle cx="100" cy="170" fill="#AEC6CF" r="35"></circle>
+								<text fill="#333" font-size="24" font-weight="bold" text-anchor="middle" x="100"
+									y="180">y</text>
+								<circle cx="410" cy="210" fill="#AEC6CF" r="30"></circle>
+								<text fill="#333" font-size="20" font-weight="bold" text-anchor="middle" x="410"
+									y="218">a</text>
+							</g>
+							<!-- Operations (Pastel Orange) -->
+							<g filter="url(#shadow)">
+								<rect fill="#FFB347" height="50" rx="10" width="70" x="220" y="95"></rect>
+								<text fill="#333" font-size="30" font-weight="bold" text-anchor="middle" x="255"
+									y="130">×</text>
+								<rect fill="#FFB347" height="50" rx="10" width="60" x="380" y="95"></rect>
+								<text fill="#333" font-size="30" font-weight="bold" text-anchor="middle" x="410"
+									y="130">+</text>
+							</g>
+							<!-- Result (Pastel Green) -->
+							<g filter="url(#shadow)">
+								<circle cx="580" cy="120" fill="#77DD77" r="40"></circle>
+								<text fill="#333" font-size="28" font-weight="bold" text-anchor="middle" x="580"
+									y="130">z</text>
+							</g>
+							<!-- Labels -->
+							<text fill="#AEC6CF" font-size="14" text-anchor="middle" x="100" y="25">Tensors</text>
+							<text fill="#FFB347" font-size="14" text-anchor="middle" x="255" y="165">Multiply</text>
+							<text fill="#FFB347" font-size="14" text-anchor="middle" x="410" y="80">Add</text>
+							<text fill="#77DD77" font-size="14" text-anchor="middle" x="580" y="70">Result</text>
+						</svg>
+					</div>
+
+				</section>
+				<section>
+					<h3>Automatic Differentiation (Autograd)</h3>
+					<pre><code class="language-python" data-line-numbers="1-3|5-6|8-9|11-12" data-trim="">
+							# Track gradients
+							x = torch.tensor(2.0, requires_grad=True) # or
+							x = torch.nn.Parameter(torch.tensor(2.0))
+
+							# Forward pass builds the graph
+							y = x**2 + 5*x
+
+							# Backward pass traverses the DAG backwards
+							y.backward()
+
+							# Evaluates 2*x + 5 at x=2 -&gt; 9.0
+							print(x.grad) 
+						</code></pre>
+
+				</section>
+			</section>
+			<!-- Basics of Neural Networks -->
+			<section>
+				<section>
+					<h2>Deep Dive: Neural Networks</h2>
+					<p>The <code>torch.nn</code> Module</p>
+
+				</section>
+				<section>
+					<h3>What is a Linear Layer?</h3>
+					<div class="r-hstack justify-center">
+						<div style="font-size: 0.8em;">
+							<p>A linear layer (fully connected) applies an affine transformation:</p>
+							\[ y = W x + b \]
+							<ul>
+								<li>$x$: Input vector</li>
+								<li>$W$: Weight matrix (learnable)</li>
+								<li>$b$: Bias vector (learnable)</li>
+								<li>$y$: Output vector</li>
+							</ul>
+						</div>
+						<img alt="Linear Layer Diagram" src="assets/linear.svg"
+							style="filter: invert(1); transform: scale(2); margin-left: 100px;" />
+					</div>
+
+				</section>
+				<section>
+					<h3>In PyTorch</h3>
+					<pre><code class="language-python" data-line-numbers="" data-trim="">
+							# Maps a 10-dimensional input to a 50-dimensional output
+							layer = nn.Linear(in_features=10, out_features=50)
+
+							# Accessing the internal parameters
+							print(layer.weight.shape) # torch.Size([50, 10])
+							print(layer.bias.shape)   # torch.Size([50])
+						</code></pre>
+					<p>These weights and biases automatically have <code>requires_grad=True</code>.</p>
+
+				</section>
+			</section>
+			<!-- Activations -->
+			<section>
+				<section>
+					<h2>Activation Functions</h2>
+					<p>Breaking the Linearity</p>
+					<p>Without activations, stacking multiple linear layers is mathematically equivalent to a single
+						linear layer.</p>
+
+				</section>
+				<section>
+					<h3 style="margin-bottom: 0;">Visualizing Activations</h3>
+					<div
+						style="display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; justify-items: center; margin-top: 10px; row-gap: 5px; column-gap: 10px;">
+						<!-- Row 1: Titles -->
+						<h4 style="margin: 0;">ReLU</h4>
+						<h4 style="margin: 0;">Sigmoid</h4>
+						<h4 style="margin: 0;">Tanh</h4>
+						<!-- Row 2: Graphs -->
+						<img alt="ReLU Activation" src="assets/relu.svg" style="height: 300px; margin: 0;" />
+						<img alt="Sigmoid Activation" src="assets/sigmoid.svg" style="height: 300px; margin: 0;" />
+						<img alt="Tanh Activation" src="assets/tanh.svg" style="height: 300px; margin: 0;" />
+						<!-- Row 3: Equations -->
+						<div style="font-size: 0.6em; margin: 0;">
+							\[ \text{ReLU}(x) = \max(0, x) \]
+						</div>
+						<div style="font-size: 0.6em; margin: 0;">
+							\[ \sigma(x) = \frac{1}{1 + e^{-x}} \]
+						</div>
+						<div style="font-size: 0.6em; margin: 0;">
+							\[ \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} \]
+						</div>
+						<!-- Row 4: PyTorch Code -->
+						<div
+							style="background: #272822; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 0.55em; color: #f8f8f2; border: 1px solid #555;">
+							nn.ReLU()
+						</div>
+						<div
+							style="background: #272822; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 0.55em; color: #f8f8f2; border: 1px solid #555;">
+							nn.Sigmoid()
+						</div>
+						<div
+							style="background: #272822; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 0.55em; color: #f8f8f2; border: 1px solid #555;">
+							nn.Tanh()
+						</div>
+					</div>
+
+				</section>
+			</section>
+			<!-- Loss Functions -->
+			<section>
+				<section>
+					<h3>Loss Functions: output vs target</h3>
+					<p>How we measure "how wrong" the model or physical design is, with respect to a target.</p>
+					<div class="equation-box">
+						<p>\[\mathcal{Loss}(output,target)\]</p>
+					</div>
+					<pre><code class="language-python" data-line-numbers="" data-trim="">
+							# Mean Squared Error for continuous fitting
+							criterion = nn.MSELoss()
+
+							output = model(input)
+							loss = criterion(output, target)
+						</code></pre>
+					<p class="fragment">The loss is a scalar tensor. Calling <code>loss.backward()</code> computes
+						gradients for every parameter that contributed to it.</p>
+
+				</section>
+				<section>
+					<h3>Loss Functions: just the output</h3>
+					<p>In this case the output represents the physical quantity that we want to optimize.</p>
+					<div class="equation-box">
+						<p>\[\mathcal{output=f(input)}\]</p>
+					</div>
+					<pre><code class="language-python" data-line-numbers="" data-trim="">
+							# Mean Squared Error for continuous fitting
+							output = differentiable_simulation(input)
+						</code></pre>
+					<p class="fragment">Output is still a scalar tensor. Calling <code>output.backward()</code> computes
+						gradients for every parameter that contributed to it.</p>
+
+				</section>
+			</section>
+			<!-- Optimizers -->
+			<section>
+				<section>
+					<h2>Optimizers</h2>
+					<p>Updating parameters intelligently</p>
+
+				</section>
+				<section>
+					<h3>Stochastic Gradient Descent (SGD)</h3>
+					<div>
+						$\theta_{t+1} = \theta_t - \eta \cdot \nabla L(\theta_t)$
+					</div>
+					<p>Where $\eta$ is the learning rate. Simple, but can get stuck in local minima and navigate flat
+						regions slowly.</p>
+					<img alt="Gradient Descent" src="assets/2024/loss_landscape_optimization.gif"
+						style="height: 300px; margin-top: 20px; background: transparent; border: none; box-shadow: none;" />
+
+				</section>
+				<section>
+					<h3 style="margin-top: 0;">Adam (Adaptive Moment Estimation)</h3>
+					<p style="font-size: 0.7em;">Maintains estimates of 1st moment ($m_t$) and 2nd raw moment ($v_t$) of
+						the gradients.</p>
+					<div style="font-size: 0.65em; text-align: left; width: 95%; margin: 0 auto;">
+						<p><strong>1. Update biased moment estimates:</strong></p>
+						<div style="display: flex; justify-content: space-around;">
+							<div>\[ m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t \]</div>
+							<div>\[ v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2 \]</div>
+						</div>
+						<p><strong>2. Compute bias-corrected estimates (crucial for early steps):</strong></p>
+						<div style="display: flex; justify-content: space-around;">
+							<div>\[ \hat{m}_t = \frac{m_t}{1 - \beta_1^t} \]</div>
+							<div>\[ \hat{v}_t = \frac{v_t}{1 - \beta_2^t} \]</div>
+						</div>
+						<p><strong>3. Update parameters:</strong></p>
+						<div style="text-align: center;">
+							\[ \theta_t = \theta_{t-1} - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} \]
+						</div>
+					</div>
+
+				</section>
+				<!-- <section>
+						<h3>The Optimization Loop</h3>
+						<pre style="width: 100%; font-size: 0.55em;"><code class="language-python" data-trim data-line-numbers="1-3|5|6|8|9|11|12">
+							import torch.optim as optim
+
+							optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+							for epoch in range(100):
+							    optimizer.zero_grad()   # 1. Clear old gradients
+							    
+							    output = model(input)   # 2. Forward pass
+							    loss = criterion(output, target) # 3. Compute loss
+							    
+							    loss.backward()         # 4. Compute exact gradients via DAG
+							    optimizer.step()        # 5. Update weights using Adam
+						</code></pre>
+					</section> -->
+			</section>
+			<!-- Fitting a Sine Wave (Walkthrough) -->
+			<section>
+				<section>
+					<h2>Building the MLP</h2>
+					<p>Defining a Neural Network with <code>nn.Sequential</code></p>
+					<div class="r-hstack justify-center" style="gap: 20px;">
+						<div style="flex: 1; text-align: left;">
+							<pre style="width: fit-content; margin: 0 auto; font-size: 0.35em;"><code class="language-python" data-line-numbers="1-2|3,5,7|4,6" data-trim="">
+									# Multi-Layer Perceptron (MLP) for 1D regression
+									model = nn.Sequential(
+									    nn.Linear(1, 64),
+									    nn.Tanh(),
+									    nn.Linear(64, 64),
+									    nn.Tanh(),
+									    nn.Linear(64, 1)
+									)
+								</code></pre>
+							<p><small>This defines a network with 1 input, 2 hidden layers of 64 neurons, and 1
+									output.</small></p>
+						</div>
+						<div style="flex: 1;">
+							<img alt="MLP Scheme" src="assets/nn.svg"
+								style="height: 400px; filter: invert(1); background: transparent; border: none; box-shadow: none; transform: scale(2.5);" />
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h2>Building the MLP, again...</h2>
+					<p>Defining a Neural Network subclassing <code>nn.Module</code></p>
+					<div class="r-hstack justify-center" style="gap: 20px;">
+						<div style="flex: 1; text-align: left;">
+							<pre style="width: fit-content; margin: 0 auto; font-size: 0.35em;"><code class="language-python" data-line-numbers="1-4|6,8,10|7,9|13-15" data-trim="">
+								# Define a neural network with subclassing
+								class NeuralNetwork(nn.Module):
+									def __init__(self, input_dim=1, hidden_dim=64, output_dim=1):
+										super().__init__()
+										self.net = nn.Sequential(
+											nn.Linear(input_dim, hidden_dim),
+											nn.Tanh(),
+											nn.Linear(hidden_dim, hidden_dim),
+											nn.Tanh(),
+											nn.Linear(hidden_dim, output_dim),
+										)
+										
+									def forward(self, x):
+										out = self.net(x)
+										return out
+								</code></pre>
+							<p><small>It's the same network, just defined with a different style.</small></p>
+						</div>
+						<div style="flex: 1;">
+							<img alt="MLP Scheme" src="assets/nn.svg"
+								style="height: 400px; filter: invert(1); background: transparent; border: none; box-shadow: none; transform: scale(2.5);" />
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h2>Putting it all Together</h2>
+					<p>Fitting a Sine Wave</p>
+					<p>Goal: Train our MLP to map an input $x$ to $y = \sin(x)$</p>
+					<pre style="width: fit-content; margin: 0 auto; font-size: 0.5em;"><code class="language-python" data-line-numbers="1-2|4|6-7" data-trim="">
+							# 1. Data Generation
+							n_points = 200
+							# Create points between -pi and pi
+							x_train = torch.linspace(-np.pi, np.pi, n_points).view(-1, 1)
+
+							# The target we want to approximate
+							y_train = torch.sin(x_train)
+						</code></pre>
+
+				</section>
+				<section>
+					<h3>Problem Setup</h3>
+					<pre style="width: fit-content; margin: 0 auto; font-size: 0.5em;"><code class="language-python" data-line-numbers="1-7|8-10|12-13" data-trim="">
+							# 2. Model Definition
+							model = nn.Sequential(
+							    nn.Linear(1, 64), nn.Tanh(),
+							    nn.Linear(64, 64), nn.Tanh(),
+							    nn.Linear(64, 1)
+							)
+
+							# 3. Optimizer and Loss
+							# Adam optimizer adjusting the model's parameters
+							optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+							# Mean Squared Error to measure fit quality
+							criterion = nn.MSELoss()
+						</code></pre>
+
+				</section>
+				<section>
+					<h3>The optimization loop</h3>
+					<pre style="width: fit-content; margin: 0 auto; font-size: 0.55em;"><code class="language-python" data-line-numbers="1-2|4|5|6|7|8|9" data-trim="">
+							# 4. Training Loop
+							epochs = 1000
+
+							for epoch in range(epochs):
+							    optimizer.zero_grad()            # Clear old gradients
+							    y_pred = model(x_train)          # Forward pass
+							    loss = criterion(y_pred, y_train)# Compute error
+							    loss.backward()                  # Backpropagation
+							    optimizer.step()                 # Update weights
+						</code></pre>
+
+				</section>
+				<section>
+					<h3>Final Visualization</h3>
+					<pre style="width: fit-content; margin: 0 auto; font-size: 0.3em;"><code class="language-python" data-line-numbers="1-4|6-12" data-trim="">
+							# 5. Inference
+							model.eval()          # Set to evaluation mode
+							with torch.no_grad(): # Disable gradient tracking for speed
+							    y_final = model(x_train)
+
+							# Plotting (matplotlib)
+							skip = 5
+							plt.plot(x_train.numpy()[::skip], y_train.numpy()[::skip], 'w.', label='True Sine Wave', markersize=8)
+							plt.plot(x_train.numpy(), y_final.numpy(), 'r-', label='Neural Network Fit', linewidth=3)
+							plt.legend()
+							plt.show()
+						</code></pre>
+					<img alt="MLP Fit Result" src="assets/mlp_sine_fit.png"
+						style="height: 300px; background: transparent; border: none; box-shadow: none; margin: 20px auto 0; display: block;" />
+					<p><small><em>Let's see this in action in the Jupyter Notebook!</em></small></p>
+
+				</section>
+			</section>
+			<!-- Mie Theory -->
+			<section>
+				<section>
+					<h2>Mie Theory</h2>
+					<p>Exact Solution for Light Scattering by Spheres</p>
+					<div class="fragment">
+						<p>Derives from solving the vector wave equation in spherical coordinates:</p>
+						<div class="equation-box">
+							\[ \nabla \times \nabla \times \mathbf{E} - k^2 \mathbf{E} = 0 \]
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h3>Field Expansions</h3>
+					<p>Expansion in Vector Spherical Harmonics:</p>
+					<div style="display: flex; justify-content: space-around; font-size: 0.6em; width: 100%;">
+						<div style="flex: 1; padding-right: 10px;">
+							<p><strong>Scattered Field:</strong></p>
+							<div class="equation-box" style="font-size: 1em;">
+								\[ \mathbf{E}_s = \sum_{n=1}^\infty E_n ( i a_n \mathbf{N}_{e1n}^{(3)} - b_n
+								\mathbf{M}_{o1n}^{(3)} ) \]
+								\[ \mathbf{H}_s = \frac{k}{\omega\mu} \sum_{n=1}^\infty E_n ( i b_n
+								\mathbf{N}_{o1n}^{(3)} + a_n \mathbf{M}_{e1n}^{(3)} ) \]
+							</div>
+						</div>
+						<div style="flex: 1; padding-left: 10px;">
+							<p><strong>Internal Field:</strong></p>
+							<div class="equation-box" style="font-size: 1em;">
+								\[ \mathbf{E}_1 = \sum_{n=1}^\infty E_n ( c_n \mathbf{M}_{o1n}^{(1)} - i d_n
+								\mathbf{N}_{e1n}^{(1)} ) \]
+								\[ \mathbf{H}_1 = -\frac{k_1}{\omega\mu_1} \sum_{n=1}^\infty E_n ( d_n
+								\mathbf{M}_{e1n}^{(1)} + i c_n \mathbf{N}_{o1n}^{(1)} ) \]
+							</div>
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h3>Scattering Coefficients</h3>
+					<p>The solution is expanded in Vector Spherical Harmonics with coefficients \(a_n\) (electric) and
+						\(b_n\) (magnetic):</p>
+					<div class="equation-box">
+						\[ a_n = \frac{m \psi_n(mx) \psi_n'(x) - \psi_n(x) \psi_n'(mx)}{m \psi_n(mx) \xi_n'(x) -
+						\xi_n(x) \psi_n'(mx)} \]
+						\[ b_n = \frac{\psi_n(mx) \psi_n'(x) - m \psi_n(x) \psi_n'(mx)}{\psi_n(mx) \xi_n'(x) - m
+						\xi_n(x) \psi_n'(mx)} \]
+					</div>
+					<p>where \(x = ka\) is the size parameter and \(m = n_{p} / n_{m}\) is the relative index.</p>
+
+				</section>
+				<section>
+					<h3>Cross Sections</h3>
+					<p>The physical properties (Extinction, Scattering) are obtained by summing the multipolar
+						contributions:</p>
+					<div class="equation-box">
+						\[ \sigma_{ext} = \frac{2\pi}{k^2} \sum_{n=1}^{\infty} (2n+1) \text{Re}(a_n + b_n) \]
+						\[ \sigma_{sca} = \frac{2\pi}{k^2} \sum_{n=1}^{\infty} (2n+1) (|a_n|^2 + |b_n|^2) \]
+					</div>
+
+				</section>
+				<section>
+					<h3>Inverse Design Targets</h3>
+					<div style="display: flex; justify-content: space-around; width: 100%; gap: 20px;">
+						<div style="flex: 1;">
+							<h4 style="font-size: 1.1em; text-transform: none;">Local Field Enhancement</h4>
+							<p>Maximize the electric field intensity at a specific target location (e.g., surface
+								hot-spots):</p>
+							<div class="equation-box">
+								\[ \max_{\theta} |\mathbf{E}(\mathbf{r}_{target}, \theta)|^2 \]
+							</div>
+						</div>
+						<div style="flex: 1;">
+							<h4 style="font-size: 1.1em; text-transform: none;">Scattering Directionality</h4>
+							<p>Design radiation patterns, e.g., the <strong>First Kerker Condition</strong> (zero
+								backscattering) by matching dipoles:</p>
+							<div class="equation-box">
+								\[ a_1 = b_1 \implies \sigma_{back} = 0 \]
+							</div>
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h2>Differentiable Mie Theory</h2>
+					<img alt="PyMieDiff Logo" src="assets/pymiediff_logo-dark.png" style="height: 250px; margin-bottom: 20px;"/>
+					<p>We will use <strong>PyMieDiff</strong> to run our optimizations. It's a highly efficient,
+						fully-differentiable Mie theory solver implemented in PyTorch.</p>
+				</section>
+				<section>
+					<h2>Mie Theory Optimization</h2>
+					<div class="r-hstack justify-center" style="gap: 20px; align-items: flex-start;">
+						<div style="flex: 1;">
+							<p>First, we are using simple gradient descent to optimize our Mie structure.</p>
+							<img alt="Gradient Descent" src="assets/2024/loss_landscape_optimization.gif" style="width: 100%; border-radius: 10px; background: transparent;"/>
+						</div>
+						<div style="flex: 1;">
+							<p>We can also show the tandem neural network setup for broader design tasks.</p>
+							<img alt="Tandem NN" src="assets/x5.png" style="width: 100%; border-radius: 10px; background: white;"/>
+						</div>
+					</div>
+				</section>
+			</section>
+			<!-- Transfer Matrix Method -->
+			<section>
+				<section>
+					<h2>Transfer Matrix Method</h2>
+					<p>Waves in Stratified Media</p>
+					<div
+						style="display: flex; align-items: center; justify-content: space-around; width: 100%; gap: 30px; margin-top: 30px;">
+						<div  style="flex: 1;">
+							<svg height="300" viewbox="0 0 300 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+								<!-- Layers -->
+								<rect fill="rgba(255,255,255,0.05)" height="180" width="80" x="0" y="0"></rect>
+								<rect fill="rgba(255,255,255,0.15)" height="180" width="140" x="80" y="0"></rect>
+								<rect fill="rgba(255,255,255,0.05)" height="180" width="80" x="220" y="0"></rect>
+								<!-- Interfaces -->
+								<line stroke="rgba(255,255,255,0.5)" stroke-dasharray="5,5" stroke-width="2" x1="80"
+									x2="80" y1="0" y2="180"></line>
+								<line stroke="rgba(255,255,255,0.5)" stroke-dasharray="5,5" stroke-width="2" x1="220"
+									x2="220" y1="0" y2="180"></line>
+								<!-- Labels -->
+								<text fill="white" font-size="20" font-style="italic" text-anchor="middle" x="40"
+									y="30">n<tspan baseline-shift="sub" font-size="14">i-1</tspan></text>
+								<text fill="white" font-size="20" font-style="italic" text-anchor="middle" x="150"
+									y="30">n<tspan baseline-shift="sub" font-size="14">i</tspan></text>
+								<text fill="white" font-size="20" font-style="italic" text-anchor="middle" x="260"
+									y="30">n<tspan baseline-shift="sub" font-size="14">i+1</tspan></text>
+								<!-- Forward wave A_i^+ -->
+								<line stroke="#ff5555" stroke-width="3" x1="90" x2="175" y1="90" y2="90"></line>
+								<polygon fill="#ff5555" points="180,90 165,85 165,95"></polygon>
+								<text fill="#ff5555" font-size="18" font-style="italic" text-anchor="middle" x="135"
+									y="75">A<tspan baseline-shift="sub" font-size="12">i</tspan>
+									<tspan baseline-shift="super" font-size="12">+</tspan>
+								</text>
+								<!-- Backward wave A_i^- -->
+								<line stroke="#55aaff" stroke-width="3" x1="210" x2="125" y1="130" y2="130"></line>
+								<polygon fill="#55aaff" points="120,130 135,125 135,135"></polygon>
+								<text fill="#55aaff" font-size="18" font-style="italic" text-anchor="middle" x="165"
+									y="155">A<tspan baseline-shift="sub" font-size="12">i</tspan>
+									<tspan baseline-shift="super" font-size="12">-</tspan>
+								</text>
+								<!-- z axis -->
+								<line stroke="white" stroke-width="2" x1="10" x2="280" y1="190" y2="190"></line>
+								<polygon fill="white" points="285,190 275,185 275,195"></polygon>
+								<text fill="white" font-size="16" font-style="italic" x="295" y="195">z</text>
+							</svg>
+						</div>
+						<div style="flex: 1; text-align: center;">
+							<p>Superposition in layer \(i\):</p>
+							<div class="equation-box" style="font-size: 0.5em; margin: 10px auto;">
+								\[ E_i(z) = a_i(z) + b_i(z) = A_i^+ e^{i k_{z,i} z} + A_i^- e^{-i k_{z,i} z} \]
+							</div>
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h3>Propagation Matrix</h3>
+					<p>Relating the forward (\(a_i\)) and backward (\(b_i\)) waves across a single layer of thickness
+						\(d_i\):</p>
+					<div class="equation-box" style="font-size: 0.7em; padding: 0px;">
+						\[ a_i(z) = A_i^+ e^{i k_{z,i} (z - z_{i-1})}, \quad b_i(z) = A_i^- e^{-i k_{z,i} (z - z_{i-1})}
+						\]
+					</div>
+					<p>The matrix \(P_i\) links the boundaries \(z_{i-1}\) (left) and \(z_i\) (right):</p>
+					<div class="equation-box" style="font-size: 0.7em; padding: 0px;">
+						\[ \begin{pmatrix} a_i(z_{i-1}) \\ b_i(z_{i-1}) \end{pmatrix} = \underbrace{\begin{pmatrix}
+						e^{-i \phi_i} &amp; 0 \\ 0 &amp; e^{i \phi_i} \end{pmatrix}}_{P_i} \begin{pmatrix} a_i(z_i) \\
+						b_i(z_i)
+						\end{pmatrix} \]
+					</div>
+					<p>where the phase thickness is \(\phi_i = k_{z,i} d_i\).</p>
+
+				</section>
+				<section>
+					<h3>Interface Matrix</h3>
+					<p>Relating fields at the interface between Medium \(i\) and Medium \(j\):</p>
+					<div class="equation-box" style="font-size: 0.7em; padding: 5px;">
+						\[ \begin{pmatrix} a_i \\ b_i \end{pmatrix} = W_{ij} \begin{pmatrix} a_j \\ b_j \end{pmatrix} \]
+						\[ W_{ij} = \frac{1}{t_{ij}} \begin{pmatrix} 1 &amp; r_{ij} \\ r_{ij} &amp; 1 \end{pmatrix} \]
+					</div>
+					<p>Where \(r_{ij}\) and \(t_{ij}\) are the Fresnel reflection and transmission coefficients.</p>
+
+				</section>
+				<section>
+					<h3>Global Transfer Matrix</h3>
+					<p>The total stack response is the product of all interface and propagation matrices:</p>
+					<div class="equation-box" style="font-size: 0.7em; padding: 5px;">
+						\[ M = W_{01} P_1 W_{12} P_2 \dots P_N W_{N,N+1} = \begin{pmatrix} M_{11} &amp; M_{12} \\ M_{21}
+						&amp;
+						M_{22} \end{pmatrix} \]
+					</div>
+					<p>For an incident wave of amplitude \(a_0 = 1\), with reflected amplitude \(r\), transmitted
+						amplitude \(t\), and no backward wave from the substrate (\(b_{N+1} = 0\)):</p>
+					<div class="equation-box" style="font-size: 0.7em; padding: 5px;">
+						\[ \begin{pmatrix} 1 \\ r \end{pmatrix} = \begin{pmatrix} M_{11} &amp; M_{12} \\ M_{21} &amp;
+						M_{22}
+						\end{pmatrix} \begin{pmatrix} t \\ 0 \end{pmatrix} \]
+					</div>
+
+				</section>
+				<section>
+					<h3>Reflection &amp; Transmission</h3>
+					<p>The system response is extracted from the global matrix $M$:</p>
+					<div class="equation-box">
+						\[ t = \frac{1}{M_{11}}, \quad r = \frac{M_{21}}{M_{11}} \]
+					</div>
+					<p>Calculating the measurable Reflectance ($R$) and Transmittance ($T$):</p>
+					<div class="equation-box">
+						\[ R = |r|^2, \quad T = \frac{\text{Re}(k_{z, N+1})}{\text{Re}(k_{z, 0})} |t|^2 \]
+					</div>
+
+				</section>
+				<section>
+					<h3>TMM Inverse Design Targets</h3>
+					<div style="display: flex; justify-content: space-around; width: 100%; gap: 20px;">
+						<div style="flex: 1;">
+							<h4 style="font-size: 1.1em; text-transform: none;">Bloch Surface Waves</h4>
+							<p>Maximize local field enhancement at the final interface under Total Internal Reflection
+								(TIR):</p>
+							<div class="equation-box" style="font-size: 0.8em; padding: 10px;">
+								\[ \max_{\mathbf{d}} \left| E(z_N) \right|^2 \]
+							</div>
+						</div>
+						<div style="flex: 1;">
+							<h4 style="font-size: 1.1em; text-transform: none;">Spectral Shaping</h4>
+							<p>Match a specific broadband reflection profile, such as a visible Notch Filter:</p>
+							<div class="equation-box" style="font-size: 0.8em; padding: 10px;">
+								\[ \min_{\mathbf{d}} \sum_{\lambda} \left( R(\lambda, \mathbf{d}) -
+								R_{\text{target}}(\lambda) \right)^2 \]
+							</div>
+						</div>
+					</div>
+
+				</section>
+				<section>
+					<h2>Differentiable RCWA with Nannos</h2>
+					<img alt="Nannos" src="assets/Screenshot From 2026-03-26 23-43-40.png" style="height: 300px; margin-bottom: 20px; border-radius: 10px;"/>
+					<p><small>We will use the RCWA (Rigorous coupled-wave analysis) code <strong>Nannos</strong> to perform multilayer optimizations. 
+						RCWA is more sophisticated than the Transfer Matrix Method because it allows modeling 
+						<strong>nanostructured layers</strong>. For uniform layers, it naturally reduces to TMM. 
+						Since Nannos is based on PyTorch and is fully differentiable, it is ideal for our inverse design workflows.</small></p>
+				</section>
+			</section>
+			<!-- Final -->
+			<section>
+				<h2>Thank You</h2>
+				<p>Let's move to the Jupyter Notebooks for a hands-on implementation!</p>
+
+			</section>
+		</div>
+	</div>
+	<script src="dist/reveal.js"></script>
+	<script src="dist/plugin/notes.js"></script>
+	<script src="dist/plugin/markdown.js"></script>
+	<script src="dist/plugin/highlight.js"></script>
+	<script src="dist/plugin/math.js"></script>
+	<script>
+		Reveal.initialize({
+			hash: true,
+			// Enable MathJax for LaTeX formulas
+			mathjax3: {
+				mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+				tex: {
+					inlineMath: [['$', '$'], ['\\(', '\\)']]
+				},
+				options: {
+					skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+				},
+			},
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.MathJax3]
+		});
+	</script>
+</body>
+
+</html>
