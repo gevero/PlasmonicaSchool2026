@@ -773,14 +773,20 @@
 					<h2>Mie Theory Optimization</h2>
 					<div class="r-hstack justify-center" style="gap: 20px; align-items: flex-start;">
 						<div style="flex: 1;">
-							<p>First, we are using simple gradient descent to optimize our Mie structure.</p>
+							<p><small>First, we are using simple gradient descent to optimize our Mie structure.</small></p>
 							<img alt="Gradient Descent" src="assets/2024/loss_landscape_optimization.gif"
-								style="width: 100%; border-radius: 10px; background: transparent;" />
+								style="width: 100%; border-radius: -10px; background: transparent;" />
+							<p style="font-size: 0.75em;">
+								\[ \theta_{t+1} = \theta_t - \eta \cdot \nabla L(\theta_t) \]
+							</p>
 						</div>
 						<div style="flex: 1;">
-							<p>We can also show the tandem neural network setup for broader design tasks.</p>
+							<p><small>We can also use a tandem neural network setup for broader design tasks.</small></p>
 							<img alt="Tandem NN" src="assets/x5.png"
-								style="width: 100%; border-radius: 10px; background: white;" />
+								style="width: 100%; border-radius: 0px; background: white;" />
+							<p style="font-size: 0.75em;">
+								\[ \theta_{t+1} = \mathcal{N}(\theta_t) \]
+							</p>
 						</div>
 					</div>
 				</section>
