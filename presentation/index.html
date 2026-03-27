@@ -81,11 +81,26 @@
 					<small>A deep dive into modern gradient-based optimization</small>
 				</p>
 				<img alt="MLP Fit Result" src="assets/cover.png"
-					style="height: 300px; background: transparent; border: none; box-shadow: none; margin: 0px auto 0px auto;" />
-				<p>
+					style="height: 300px; background: transparent; border: none; box-shadow: none; margin: 0px auto -10px auto;" />
+				<!-- <p>
 					<small>Giovanni Pellegrini<br />
 						<a>giovanni.pellegrini@unipv.it</a></small>
-				</p>
+				</p> -->
+				<!-- Added Flexbox container to align images and text side-by-side -->
+				<div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 0px;">
+					<!-- Left Placeholder Image -->
+					<img alt="Left Logo/Placeholder" src="assets/Plasmonicaschool_2026_dark.png"
+						style="height: 80px; background: transparent;" />
+
+					<p style="margin: 0;">
+						<small>Giovanni Pellegrini<br />
+							<a>giovanni.pellegrini@unipv.it</a></small>
+					</p>
+
+					<!-- Right Placeholder Image -->
+					<img alt="Right Logo/Placeholder" src="assets/unipv_logo.png"
+						style="height: 70px; background: transparent;" />
+				</div>
 			</section>
 			<section>
 				<h2>Me in a nutshell!</h2>
@@ -112,11 +127,15 @@
 			</section>
 			<section>
 				<h2>This Presentation</h2>
-				<p><a href="https://gevero.github.io/PlasmonicaSchool2026/presentation/index.html">https://gevero.github.io/PlasmonicaSchool2026/presentation/index.html</a></p>
+				<p><a
+						href="https://gevero.github.io/PlasmonicaSchool2026/presentation/index.html">https://gevero.github.io/PlasmonicaSchool2026/presentation/index.html</a>
+				</p>
 			</section>
 			<section>
 				<h2>The Code</h2>
-				<p><a href="https://github.com/gevero/PlasmonicaSchool2026">https://github.com/gevero/PlasmonicaSchool2026</a></p>
+				<p><a
+						href="https://github.com/gevero/PlasmonicaSchool2026">https://github.com/gevero/PlasmonicaSchool2026</a>
+				</p>
 			</section>
 			<!-- Prerequisites -->
 			<section>
@@ -745,7 +764,8 @@
 				</section>
 				<section>
 					<h2>Differentiable Mie Theory</h2>
-					<img alt="PyMieDiff Logo" src="assets/pymiediff_logo-dark.png" style="height: 250px; margin-bottom: 20px;"/>
+					<img alt="PyMieDiff Logo" src="assets/pymiediff_logo-dark.png"
+						style="height: 250px; margin-bottom: 20px;" />
 					<p>We will use <strong>PyMieDiff</strong> to run our optimizations. It's a highly efficient,
 						fully-differentiable Mie theory solver implemented in PyTorch.</p>
 				</section>
@@ -754,11 +774,13 @@
 					<div class="r-hstack justify-center" style="gap: 20px; align-items: flex-start;">
 						<div style="flex: 1;">
 							<p>First, we are using simple gradient descent to optimize our Mie structure.</p>
-							<img alt="Gradient Descent" src="assets/2024/loss_landscape_optimization.gif" style="width: 100%; border-radius: 10px; background: transparent;"/>
+							<img alt="Gradient Descent" src="assets/2024/loss_landscape_optimization.gif"
+								style="width: 100%; border-radius: 10px; background: transparent;" />
 						</div>
 						<div style="flex: 1;">
 							<p>We can also show the tandem neural network setup for broader design tasks.</p>
-							<img alt="Tandem NN" src="assets/x5.png" style="width: 100%; border-radius: 10px; background: white;"/>
+							<img alt="Tandem NN" src="assets/x5.png"
+								style="width: 100%; border-radius: 10px; background: white;" />
 						</div>
 					</div>
 				</section>
@@ -770,7 +792,7 @@
 					<p>Waves in Stratified Media</p>
 					<div
 						style="display: flex; align-items: center; justify-content: space-around; width: 100%; gap: 30px; margin-top: 30px;">
-						<div  style="flex: 1;">
+						<div style="flex: 1;">
 							<svg height="300" viewbox="0 0 300 200" width="100%" xmlns="http://www.w3.org/2000/svg">
 								<!-- Layers -->
 								<rect fill="rgba(255,255,255,0.05)" height="180" width="80" x="0" y="0"></rect>
@@ -898,11 +920,14 @@
 				</section>
 				<section>
 					<h2>Differentiable RCWA with Nannos</h2>
-					<img alt="Nannos" src="assets/Screenshot From 2026-03-26 23-43-40.png" style="height: 300px; margin-bottom: 20px; border-radius: 10px;"/>
-					<p><small>We will use the RCWA (Rigorous coupled-wave analysis) code <strong>Nannos</strong> to perform multilayer optimizations. 
-						RCWA is more sophisticated than the Transfer Matrix Method because it allows modeling 
-						<strong>nanostructured layers</strong>. For uniform layers, it naturally reduces to TMM. 
-						Since Nannos is based on PyTorch and is fully differentiable, it is ideal for our inverse design workflows.</small></p>
+					<img alt="Nannos" src="assets/Screenshot From 2026-03-26 23-43-40.png"
+						style="height: 300px; margin-bottom: 20px; border-radius: 10px;" />
+					<p><small>We will use the RCWA (Rigorous coupled-wave analysis) code <strong>Nannos</strong> to
+							perform multilayer optimizations.
+							RCWA is more sophisticated than the Transfer Matrix Method because it allows modeling
+							<strong>nanostructured layers</strong>. For uniform layers, it naturally reduces to TMM.
+							Since Nannos is based on PyTorch and is fully differentiable, it is ideal for our inverse
+							design workflows.</small></p>
 				</section>
 			</section>
 			<!-- Final -->
